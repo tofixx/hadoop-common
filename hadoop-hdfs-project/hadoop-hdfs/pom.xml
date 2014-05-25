@@ -180,6 +180,11 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
       <artifactId>netty</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>de.tuberlin.cit.project.energy.hadoop</groupId>
+      <artifactId>cit-energy-project-hadoop</artifactId>
+      <version>2.4.0</version>
+    </dependency>
   </dependencies>
 
   <build>

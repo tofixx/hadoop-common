@@ -156,6 +156,8 @@ import org.apache.hadoop.util.VersionUtil;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.BlockingService;
 
+import de.tuberlin.cit.project.energy.hadoop.EnergyBaseDataNodeFilter;
+
 /**
  * This class is responsible for handling all of the RPC calls to the NameNode.
  * It is created, started, and stopped by {@link NameNode}.
@@ -182,6 +184,8 @@ class NameNodeRpcServer implements NamenodeProtocols {
   protected final InetSocketAddress clientRpcAddress;
   
   private final String minimumDataNodeVersion;
+
+  private final EnergyBaseDataNodeFilter energyBaseDataNodeFilter;
 
   public NameNodeRpcServer(Configuration conf, NameNode nn)
       throws IOException {
@@ -357,6 +361,12 @@ class NameNodeRpcServer implements NamenodeProtocols {
         AclException.class,
         FSLimitException.PathComponentTooLongException.class,
         FSLimitException.MaxDirectoryItemsExceededException.class);
+    
+    this.energyBaseDataNodeFilter = new EnergyBaseDataNodeFilter(
+    		conf.get(DFSConfigKeys.DFS_ENERGY_DATANODE_SELECTOR_ADDRESS,
+    				DFSConfigKeys.DFS_ENERGY_DATANODE_SELECTOR_ADDRESS_DEFAULT),
+    		conf.getInt(DFSConfigKeys.DFS_ENERGY_DATANODE_SELECTOR_PORT,
+    				DFSConfigKeys.DFS_ENERGY_DATANODE_SELECTOR_PORT_DEFAULT));
  }
 
   /** Allow access to the client RPC server for testing */
@@ -494,8 +504,16 @@ class NameNodeRpcServer implements NamenodeProtocols {
                                           long length) 
       throws IOException {
     metrics.incrGetBlockLocations();
-    return namesystem.getBlockLocations(getClientMachine(), 
-                                        src, offset, length);
+
+    LocatedBlocks locatedBlocks = namesystem.getBlockLocations(
+    		getClientMachine(), src, offset, length);
+
+    if (Server.isRpcInvocation())
+    	locatedBlocks = this.energyBaseDataNodeFilter.filterBlockLocations(
+    			locatedBlocks, src, Server.getRemoteUser().getUserName(),
+    			Server.getRemoteAddress());
+    
+    return locatedBlocks;
   }
   
   @Override // ClientProtocol

@@ -633,4 +633,10 @@ public class DFSConfigKeys extends CommonConfigurationKeys {
   public static final int DEFAULT_DFSCLIENT_HEDGED_READ_THREADPOOL_SIZE = 0;
   public static final String DFS_NFS_KEYTAB_FILE_KEY = "dfs.nfs.keytab.file";
   public static final String DFS_NFS_USER_NAME_KEY = "dfs.nfs.kerberos.principal";
+
+  // Energy project
+  public static final String DFS_ENERGY_DATANODE_SELECTOR_ADDRESS = "dfs.energy.datanode-selector.address";
+  public static final String DFS_ENERGY_DATANODE_SELECTOR_ADDRESS_DEFAULT = "127.0.0.1";
+  public static final String DFS_ENERGY_DATANODE_SELECTOR_PORT = "dfs.energy.datanode-selector.port";
+  public static final int DFS_ENERGY_DATANODE_SELECTOR_PORT_DEFAULT = 9090;
 }
