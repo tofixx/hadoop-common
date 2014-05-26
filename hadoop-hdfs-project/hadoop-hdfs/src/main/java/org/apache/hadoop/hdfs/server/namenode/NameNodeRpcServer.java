@@ -508,10 +508,18 @@ class NameNodeRpcServer implements NamenodeProtocols {
     LocatedBlocks locatedBlocks = namesystem.getBlockLocations(
     		getClientMachine(), src, offset, length);
 
-    if (Server.isRpcInvocation())
+    if (NamenodeWebHdfsMethods.isWebHdfsInvocation()) {
+    	locatedBlocks = this.energyBaseDataNodeFilter.filterBlockLocations(
+    			locatedBlocks, src, UserGroupInformation.getCurrentUser().getUserName(),
+    			NamenodeWebHdfsMethods.getRemoteAddress());
+    } else if(Server.isRpcInvocation()) {
     	locatedBlocks = this.energyBaseDataNodeFilter.filterBlockLocations(
     			locatedBlocks, src, Server.getRemoteUser().getUserName(),
     			Server.getRemoteAddress());
+    } else {
+        LOG.warn("Can't handle getBlockLocations filter action!");
+    }
+
     
     return locatedBlocks;
   }
